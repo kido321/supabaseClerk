@@ -1,5 +1,8 @@
 "use client";
 import { createClient } from "@supabase/supabase-js";
+import { useUser } from '@clerk/nextjs';
+import { useAuth } from '@clerk/clerk-react';
+
 import { useRef, useState, useEffect } from "react";
 import {
   Container,
@@ -24,6 +27,8 @@ declare global {
 }
 
 function createClerkSupabaseClient() {
+
+
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_KEY!,
@@ -33,6 +38,9 @@ function createClerkSupabaseClient() {
           const clerkToken = await window.Clerk.session?.getToken({
             template: "supabase",
           });
+
+
+          console.log("clerkToken",clerkToken);
 
           const headers = new Headers(options?.headers);
           headers.set("Authorization", `Bearer ${clerkToken}`);
@@ -48,6 +56,8 @@ function createClerkSupabaseClient() {
 }
 
 const client = createClerkSupabaseClient();
+
+console.log("client",client);
 
 export default function Supabase() {
   const [addresses, setAddresses] = useState<any[]>([]);
@@ -67,7 +77,13 @@ export default function Supabase() {
  
     
   }, []);
+
+const user = useUser();
+const {orgId } = useAuth(); // Get the session claims
+console.log("orgId",orgId);
+
   const listAddresses = async () => {
+    
     setLoading(true);
     const { data, error } = await client.from("Addresses").select();
     if (error) {
@@ -83,10 +99,13 @@ export default function Supabase() {
   const handleAddressSubmit = async () => {
     if (!inputRef.current?.value) return;
     const content = inputRef.current.value;
-
+    console.log("org",orgId);
     const { error } = editId
       ? await client.from("Addresses").update({ content }).eq("id", editId)
       : await client.from("Addresses").insert({ content });
+      editId
+      ? await client.from("Addresses").update(orgId).eq("id", editId)
+      : await client.from("Addresses").insert(orgId);
 
     if (error) {
       setError(error.message);
@@ -117,6 +136,14 @@ export default function Supabase() {
     setError(null);
     setSuccess(null);
   };
+
+
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+
+console.log("user",user
+);
+
+
 
   return (
     <Container>

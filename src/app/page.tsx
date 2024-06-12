@@ -1,6 +1,11 @@
 import Image from "next/image";
+import { auth } from "@clerk/nextjs/server";
 
 export default function Home() {
+
+  const { sessionClaims ,orgId  } = auth(); // Get the session claims
+  console.log("sessionClaims",sessionClaims);
+  console.log("orgId",orgId);
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">

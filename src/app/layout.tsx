@@ -8,6 +8,8 @@ import {
   SignedOut,
   UserButton
 } from '@clerk/nextjs'
+import { auth } from "@clerk/nextjs/server";
+import { SyncActiveOrganization } from "./components/SyncActiveOrganization";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,8 +23,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { userId, sessionClaims } = auth();
   return (
   <ClerkProvider>
+    <SyncActiveOrganization membership={sessionClaims?.membership } />
     <html lang="en">
       <body className={inter.className}><SignedOut>
           <SignInButton />
