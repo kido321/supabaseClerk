@@ -2,6 +2,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { useUser } from '@clerk/nextjs';
 import { useAuth } from '@clerk/clerk-react';
+import { createClerkSupabaseClient}  from "../lib/supabase";
 
 import { useRef, useState, useEffect } from "react";
 import {
@@ -18,6 +19,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import { Protect } from "@clerk/nextjs";
 
 // Add clerk to Window to avoid type errors
 declare global {
@@ -26,38 +28,8 @@ declare global {
   }
 }
 
-function createClerkSupabaseClient() {
-
-
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
-    {
-      global: {
-        fetch: async (url, options = {}) => {
-          const clerkToken = await window.Clerk.session?.getToken({
-            template: "supabase",
-          });
-
-
-          console.log("clerkToken",clerkToken);
-
-          const headers = new Headers(options?.headers);
-          headers.set("Authorization", `Bearer ${clerkToken}`);
-
-          return fetch(url, {
-            ...options,
-            headers,
-          });
-        },
-      },
-    }
-  );
-}
 
 const client = createClerkSupabaseClient();
-
-console.log("client",client);
 
 export default function Supabase() {
   const [addresses, setAddresses] = useState<any[]>([]);
@@ -69,7 +41,7 @@ export default function Supabase() {
 
   useEffect(() => {
     setTimeout(() => {
-        console.log('Delayed message');
+;
         listAddresses();
         console.log("useEffect");
       }, 400 ); 
@@ -78,12 +50,9 @@ export default function Supabase() {
     
   }, []);
 
-const user = useUser();
-const {orgId } = useAuth(); // Get the session claims
-console.log("orgId",orgId);
 
   const listAddresses = async () => {
-    
+  
     setLoading(true);
     const { data, error } = await client.from("Addresses").select();
     if (error) {
@@ -99,13 +68,9 @@ console.log("orgId",orgId);
   const handleAddressSubmit = async () => {
     if (!inputRef.current?.value) return;
     const content = inputRef.current.value;
-    console.log("org",orgId);
     const { error } = editId
       ? await client.from("Addresses").update({ content }).eq("id", editId)
       : await client.from("Addresses").insert({ content });
-      editId
-      ? await client.from("Addresses").update(orgId).eq("id", editId)
-      : await client.from("Addresses").insert(orgId);
 
     if (error) {
       setError(error.message);
@@ -116,6 +81,20 @@ console.log("orgId",orgId);
       listAddresses();
     }
   };
+
+
+  const createuser= async () => {
+
+  const response = await fetch('/api/createuser', {
+    method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify('sdg'),
+      })
+      console.log("createuser");
+}
+ 
 
   const handleDelete = async (id: string) => {
     const { error } = await client.from("Addresses").delete().eq("id", id);
@@ -140,25 +119,33 @@ console.log("orgId",orgId);
 
   const { getToken, isLoaded, isSignedIn } = useAuth();
 
-console.log("user",user
-);
 
 
 
   return (
-    <Container>
+    <Container className="h-screen">
       <div style={{ display: "flex", flexDirection: "column", marginTop: "20px" }}>
         <TextField
           label="Address"
           variant="outlined"
           inputRef={inputRef}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleAddressSubmit();
-          }}
+          // onKeyDown={(e) => {
+          //   if (e.key === "Enter") handleAddressSubmit();
+          // }}
         />
+        <div className="display-flex">  
+          <Protect
+        permission="org:driver:create"
+        // fallback={<p>You are not allowed to see this section.</p>}
+      >
         <Button variant="contained" color="primary" onClick={handleAddressSubmit} style={{ marginTop: "10px" }}>
           {editId ? "Update Address" : "Add Address"}
         </Button>
+        <Button variant="contained" color="primary" onClick={createuser} style={{ marginTop: "10px" }}>
+          createuser
+        </Button>
+        </Protect></div>
+          
         {loading && <CircularProgress style={{ marginTop: "20px" }} />}
         <List style={{ marginTop: "20px" }}>
           {addresses.map((address) => (
