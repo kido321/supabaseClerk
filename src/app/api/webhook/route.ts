@@ -69,8 +69,10 @@ export async function POST(req: Request) {
     phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
   });
 
-  if (error) {
-    console.error('Error inserting user:', error);
+  if(error){
+    console.log("error",error);
+  
+  }
   
 
   }
