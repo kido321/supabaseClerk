@@ -6,8 +6,6 @@ import { createClerkSupabaseClient}  from "../../lib/supabase";
 
 export async function POST(req: Request) {
 
-    const client = createClerkSupabaseClient();
-
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the endpoint
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
 
@@ -59,14 +57,20 @@ export async function POST(req: Request) {
 
   if(eventType === 'user.created'){
 
+    const client = createClerkSupabaseClient();
+
+
   const { error } = await client.from("users").insert({
     first_name: evt.data.first_name? evt.data.first_name : null,
     last_name: evt.data.last_name? evt.data.last_name : null,
     email: evt.data.email_addresses?.[0]?.email_address? evt.data.email_addresses[0].email_address : null,
     user_id: evt.data.id ? evt.data.id : null,
-    org_id: evt.data.external_id ? evt.data.external_id : null,
+   // org_id: evt.data.external_id ? evt.data.external_id : null,
     phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
   });
+
+  if (error) {
+    console.error('Error inserting user:', error);
   
 
   }
