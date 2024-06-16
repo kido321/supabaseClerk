@@ -1,7 +1,7 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
-import { createClerkSupabaseClient}  from "../../lib/supabase";
+import { createSupabaseClient}  from "../../lib/supabase";
 
 
 export async function POST(req: Request) {
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
 
   if(eventType === 'user.created'){
 
-    const client = createClerkSupabaseClient();
+    const client = createSupabaseClient();
 
 
   const { error } = await client.from("users").insert({

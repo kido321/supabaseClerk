@@ -28,4 +28,9 @@ function createClerkSupabaseClient() {
 
 }
 
-export { createClerkSupabaseClient };
+function createSupabaseClient() {
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_KEY!)
+}
+
+
+export { createClerkSupabaseClient  , createSupabaseClient};
