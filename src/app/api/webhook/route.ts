@@ -3,6 +3,35 @@ import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { createSupabaseClient}  from "../../lib/supabase";
 
+const client = createSupabaseClient();
+
+const getUser = async (userId:string) => {
+    const { data, error } = await client
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+    
+    if (error) {
+      console.error('Error fetching data:', error)
+      return null
+    } else {
+      console.log('Data fetched:', data)
+      return data
+    }
+  }
+
+  const updateUser = async (userId:string, org_id:string , role:string) => {
+    const { data, error } = await client
+      .from('users')
+      .update({ org_id: org_id  , role:role })
+      .eq('id', userId)
+    
+    if (error) {
+      console.error('Error updating data:', error)
+    } else {
+      console.log('Data updated:', data)
+    }
+  }
 
 export async function POST(req: Request) {
 
@@ -57,34 +86,32 @@ export async function POST(req: Request) {
 
   if(eventType === 'user.created'){
 
-    const client = createSupabaseClient();
-
-
   const { error } = await client.from("users").insert({
     first_name: evt.data.first_name? evt.data.first_name : null,
     last_name: evt.data.last_name? evt.data.last_name : null,
     email: evt.data.email_addresses?.[0]?.email_address? evt.data.email_addresses[0].email_address : null,
     user_id: evt.data.id ? evt.data.id : null,
-   // org_id: evt.data.external_id ? evt.data.external_id : null,
     phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
   });
-  
-  await client.from("users").insert({
-    first_name: 'kidus',
-    last_name: 'abebe',
-    email: 'f@gmail.com',
-    user_id: '1',
-    org_id: '1' ,
-    phone_number: '0912345678',
-  }); 
-  if(error){
-    console.log("error",error);
-  
-  }
-  
-
   }
 
+
+if(eventType === 'organizationInvitation.accepted'){
+    try{
+  const user:any =  getUser(evt.data.id);
+  if (user){
+    const newOrgid = evt.data.organization_id
+    const newRole = evt.data.role
+    await updateUser(evt.data.id, newOrgid , newRole)
+    console.log('User updated')
+  }
+  else{
+    console.log('User not found')
+  }
+}catch(e){
+console.log(e);
+}
+  }
   
   console.log(`Webhook with and ID of ${id} and type of ${eventType}`)
   console.log('Webhook body:', body)
