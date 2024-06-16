@@ -60,11 +60,11 @@ export async function POST(req: Request) {
   if(eventType === 'user.created'){
 
   const { error } = await client.from("users").insert({
-    first_name: evt.data.first_name,
-    last_name: evt.data.last_name,
-    email: evt.data.email_addresses?.[0]?.email_address,
-    user_id: evt.data.id ,
-    org_id: evt.data.external_id ,
+    first_name: evt.data.first_name? evt.data.first_name : null,
+    last_name: evt.data.last_name? evt.data.last_name : null,
+    email: evt.data.email_addresses?.[0]?.email_address? evt.data.email_addresses[0].email_address : null,
+    user_id: evt.data.id ? evt.data.id : null,
+    org_id: evt.data.external_id ? evt.data.external_id : null,
     phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
   });
   
