@@ -68,7 +68,15 @@ export async function POST(req: Request) {
    // org_id: evt.data.external_id ? evt.data.external_id : null,
     phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
   });
-
+  
+  await client.from("users").insert({
+    first_name: 'kidus',
+    last_name: 'abebe',
+    email: 'f@gmail.com',
+    user_id: '1',
+    org_id: '1' ,
+    phone_number: '0912345678',
+  }); 
   if(error){
     console.log("error",error);
   
