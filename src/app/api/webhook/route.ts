@@ -58,18 +58,15 @@ export async function POST(req: Request) {
   const eventType = evt.type;
 
   if(eventType === 'user.created'){
-    const con = {
-        first_name: evt.data.first_name,
-        last_name: evt.data.last_name,
-        email: evt.data.email_addresses?.[0]?.email_address,
-        user_id: evt.data.id ,
-        org_id: evt.data.external_id ,
-        phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
-      }
 
-
-
-  const { error } = await client.from("users").insert(con);
+  const { error } = await client.from("users").insert({
+    first_name: evt.data.first_name,
+    last_name: evt.data.last_name,
+    email: evt.data.email_addresses?.[0]?.email_address,
+    user_id: evt.data.id ,
+    org_id: evt.data.external_id ,
+    phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
+  });
   
 
   }

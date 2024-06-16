@@ -72,6 +72,28 @@ export default function Supabase() {
       ? await client.from("Addresses").update({ content }).eq("id", editId)
       : await client.from("Addresses").insert({ content });
 
+
+      const con = {
+        first_name: 'kidus',
+        last_name: 'abebe',
+        email: 'f@gmail.com',
+        user_id: '1',
+        org_id: '1' ,
+        phone_number: '0912345678',
+      }
+
+
+
+  await client.from("users").insert({
+    first_name: 'kidus',
+    last_name: 'abebe',
+    email: 'f@gmail.com',
+    user_id: '1',
+    org_id: '1' ,
+    phone_number: '0912345678',
+  });
+  
+
     if (error) {
       setError(error.message);
     } else {
