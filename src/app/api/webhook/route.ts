@@ -5,6 +5,10 @@ import { createSupabaseClient}  from "../../lib/supabase";
 
 const client = createSupabaseClient();
 
+const delay = (ms: number): Promise<void> => {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
 const getUser = async (userId:string) => {
     const { data, error } = await client
       .from('users')
@@ -86,17 +90,19 @@ export async function POST(req: Request) {
 
   if(eventType === 'user.created'){
 
-  const { error } = await client.from("users").insert({
+  await client.from("users").insert({
     first_name: evt.data.first_name? evt.data.first_name : null,
     last_name: evt.data.last_name? evt.data.last_name : null,
     email: evt.data.email_addresses?.[0]?.email_address? evt.data.email_addresses[0].email_address : null,
     user_id: evt.data.id ? evt.data.id : null,
     phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
-  });
+  }).then(() => {});
   }
 
 
 if(eventType === 'organizationInvitation.accepted'){
+    await delay(2000) 
+
     try{
   const user:any =  getUser(evt.data.id);
   if (user){
