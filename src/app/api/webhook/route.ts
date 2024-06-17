@@ -96,6 +96,8 @@ export async function POST(req: Request) {
     console.log(Org.data[0].organization)
   await client.from("users").insert({
     first_name: evt.data.first_name? evt.data.first_name : null,
+    role: Org.data[0].role,
+    org_id: Org.data[0].organization.id,
     last_name: evt.data.last_name? evt.data.last_name : null,
     email: evt.data.email_addresses?.[0]?.email_address? evt.data.email_addresses[0].email_address : null,
     user_id: evt.data.id ? evt.data.id : null,
