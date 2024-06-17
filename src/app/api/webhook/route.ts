@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     await delay(2000) 
 
     const Org = await clerkClient.users.getOrganizationMembershipList({ userId: evt.data.id });
-    console.log(Org)
+    console.log(Org.data[0].organization)
   await client.from("users").insert({
     first_name: evt.data.first_name? evt.data.first_name : null,
     last_name: evt.data.last_name? evt.data.last_name : null,
