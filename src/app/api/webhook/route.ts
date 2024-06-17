@@ -96,13 +96,14 @@ export async function POST(req: Request) {
     email: evt.data.email_addresses?.[0]?.email_address? evt.data.email_addresses[0].email_address : null,
     user_id: evt.data.id ? evt.data.id : null,
     phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
-  }).then(() => {});
+  });
   }
 
 
 if(eventType === 'organizationInvitation.accepted'){
+    console.log('Organization invitation accepted')
     await delay(2000) 
-
+    console.log('Delay done')
     try{
   const user:any =  getUser(evt.data.id);
   if (user){
