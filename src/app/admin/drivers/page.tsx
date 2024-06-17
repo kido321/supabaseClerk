@@ -1,79 +1,113 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { createClerkSupabaseClient } from '../../lib/supabase';
+// app/drivers/page.tsx
 
-interface Driver {
-  id: number;
-  name: string;
-  email: string;
-}
-
-const Drivers: React.FC = () => {
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchDrivers = async () => {
-      try {
-        const response = await fetch('/api/drivers');
-        if (!response.ok) {
-          throw new Error('Failed to fetch drivers');
-        }
-        const data = await response.json();
-        setDrivers(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDrivers();
-  }, []);
-
-  return (<div className=''>
-    <h1 className="text-2xl font-bold mb-6 text-center text-blue-500">Drivers</h1>
-    <div className="container mx-auto px-4 py-8 justify-center">
-
-  {loading ? (
-    <div className="flex justify-center items-center">
-      <p className="text-lg text-gray-600">Loading...</p>
-    </div>
-  ) : error ? (
-    <div className="flex justify-center items-center">
-      <p className="text-lg text-red-600">{error}</p>
-    </div>
-  ) : (
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="px-6 py-3 border-b-2 border-gray-200 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-              ID
-            </th>
-            <th className="px-6 py-3 border-b-2 border-gray-200 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-              Name
-            </th>
-            <th className="px-6 py-3 border-b-2 border-gray-200 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-              Email
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {drivers.map((driver) => (
-            <tr key={driver.id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{driver.id}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{driver.name}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{driver.email}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )}
-</div>
-</div>
-  );
+type Driver = {
+    id: string;
+    user_id: string;
+    car: string;
+    phone_number: string;
 };
 
-export default Drivers;
+type User = {
+    id: string;
+    name: string;
+};
+
+
+const DriversPage: React.FC = () => {
+  const supabase = createClerkSupabaseClient();
+    const [drivers, setDrivers] = useState<Driver[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [newDriver, setNewDriver] = useState({
+        userId: '',
+        car: '',
+        phoneNumber: ''
+    });
+
+    useEffect(() => {
+        fetchDrivers();
+        fetchUsers();
+    }, []);
+
+    const fetchDrivers = async () => {
+        const { data, error } = await supabase
+            .from('drivers')
+            .select('*');
+        if (error) console.error('Error fetching drivers:', error);
+        else setDrivers(data || []);
+    };
+
+    const fetchUsers = async () => {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*');
+        if (error) console.error('Error fetching users:', error);
+        else setUsers(data || []);
+    };
+
+    const handleAddDriver = async (e:any) => {
+        e.preventDefault();
+        const { data, error } = await supabase
+            .from('drivers')
+            .insert([
+                {
+                    user_id: newDriver.userId,
+                    car: newDriver.car,
+                    phone_number: newDriver.phoneNumber
+                }
+            ]);
+        if (error) console.error('Error adding driver:', error);
+        else {
+            setDrivers([...drivers, data![0]]);
+            setNewDriver({
+                userId: '',
+                car: '',
+                phoneNumber: ''
+            });
+        }
+    };
+
+    return (
+        <div>
+            <h1>Drivers</h1>
+            <ul>
+                {drivers.map(driver => (
+                    <li key={driver.id}>
+                        User ID: {driver.user_id}, Car: {driver.car}, Phone Number: {driver.phone_number}
+                    </li>
+                ))}
+            </ul>
+            <h2>Add New Driver</h2>
+            <form onSubmit={handleAddDriver}>
+                <select
+                    value={newDriver.userId}
+                    onChange={(e) => setNewDriver({ ...newDriver, userId: e.target.value })}
+                >
+                    <option value="">Select User</option>
+                    {users.map(user => (
+                        <option key={user.id} value={user.id}>
+                            {user.name} {/* Assuming 'name' is a field in your users table */}
+                        </option>
+                    ))}
+                </select>
+                <input
+                    type="text"
+                    placeholder="Car"
+                    value={newDriver.car}
+                    onChange={(e) => setNewDriver({ ...newDriver, car: e.target.value })}
+                />
+                <input
+                    type="text"
+                    placeholder="Phone Number"
+                    value={newDriver.phoneNumber}
+                    onChange={(e) => setNewDriver({ ...newDriver, phoneNumber: e.target.value })}
+                />
+                <button type="submit">Add Driver</button>
+            </form>
+        </div>
+    );
+};
+
+export default DriversPage;
