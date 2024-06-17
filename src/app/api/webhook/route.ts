@@ -2,6 +2,7 @@ import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { createSupabaseClient}  from "../../lib/supabase";
+import { clerkClient } from '@clerk/nextjs/server';
 
 const client = createSupabaseClient();
 
@@ -89,7 +90,10 @@ export async function POST(req: Request) {
   const eventType = evt.type;
 
   if(eventType === 'user.created'){
+    await delay(2000) 
 
+    const Org = await clerkClient.users.getOrganizationMembershipList({ userId: evt.data.id });
+    console.log(Org)
   await client.from("users").insert({
     first_name: evt.data.first_name? evt.data.first_name : null,
     last_name: evt.data.last_name? evt.data.last_name : null,
