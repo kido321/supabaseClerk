@@ -139,7 +139,7 @@ const user_object = await clerkClient.users.getUser(user_id);
 const user_email = user_object.emailAddresses[0].emailAddress;
 const user_phone = user_object.phoneNumbers[0] ?  user_object.phoneNumbers[0] : null ;
 console.log(org_id,  user_id, role, user_email, user_phone)
-const user:any =  getUser_data(user_id);
+const user:any = await getUser_data(user_id);
 console.log('user', user)
 
 
