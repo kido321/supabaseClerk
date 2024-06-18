@@ -89,21 +89,21 @@ export async function POST(req: Request) {
   const { id } = evt.data;
   const eventType = evt.type;
 
-//   if(eventType === 'user.created'){
-//     await delay(2000) 
-// //
-//     //const Org = await clerkClient.users.getOrganizationMembershipList({ userId: evt.data.id });
-//   //  console.log(Org.data[0].organization)
-//   await client.from("users").insert({
-//     first_name: evt.data.first_name? evt.data.first_name : null,
-//    // role: Org ? Org.data[0].role : null,
-//     //org_id: Org ? Org.data[0].organization.id : null,
-//     last_name: evt.data.last_name? evt.data.last_name : null,
-//     email: evt.data.email_addresses?.[0]?.email_address? evt.data.email_addresses[0].email_address : null,
-//     user_id: evt.data.id ? evt.data.id : null,
-//     phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
-//   });
-//   }
+  if(eventType === 'user.created'){
+    await delay(2000) 
+//
+    //const Org = await clerkClient.users.getOrganizationMembershipList({ userId: evt.data.id });
+  //  console.log(Org.data[0].organization)
+  await client.from("users").insert({
+    first_name: evt.data.first_name? evt.data.first_name : null,
+   // role: Org ? Org.data[0].role : null,
+    //org_id: Org ? Org.data[0].organization.id : null,
+    last_name: evt.data.last_name? evt.data.last_name : null,
+    email: evt.data.email_addresses?.[0]?.email_address? evt.data.email_addresses[0].email_address : null,
+    user_id: evt.data.id ? evt.data.id : null,
+    phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
+  });
+  }
 
 
 // if(eventType === 'organizationInvitation.accepted'){
@@ -126,7 +126,7 @@ export async function POST(req: Request) {
 // }
 //   }
 
-
+console.log(eventType)
 
 if(eventType === 'organizationMembership.updated'){
   console.log('Organization membership updated')
