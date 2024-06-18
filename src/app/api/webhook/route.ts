@@ -28,7 +28,7 @@ const getUser_data = async (userId:string) => {
   const updateUser = async (userId:string, org_id:string , role:string) => {
     const { data, error } = await client
       .from('users')
-      .update({ org_id: org_id  , role:role })
+      .update({ org_id:org_id  , role:role })
       .eq('user_id', userId)
     
     if (error) {
