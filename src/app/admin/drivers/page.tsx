@@ -11,25 +11,40 @@ type Driver = {
 };
 
 type User = {
-    id: string;
-    name: string;
+    user_id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone_number: string;
+    org_id: string;
+    created_at: Date;
+    id :number;
 };
 
 
 const DriversPage: React.FC = () => {
   const supabase = createClerkSupabaseClient();
     const [drivers, setDrivers] = useState<Driver[]>([]);
-    const [users, setUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<any[]>([]);
     const [newDriver, setNewDriver] = useState({
         userId: '',
         car: '',
         phoneNumber: ''
     });
-
     useEffect(() => {
-        fetchDrivers();
-        fetchUsers();
+      setTimeout(() => {
+  ;
+  fetchDrivers();
+  fetchUsers();
+          console.log("useEffect");
+        }, 400 ); 
+  
+   
+      
     }, []);
+  
+  
+  
 
     const fetchDrivers = async () => {
         const { data, error } = await supabase
@@ -41,10 +56,12 @@ const DriversPage: React.FC = () => {
 
     const fetchUsers = async () => {
         const { data, error } = await supabase
-            .from('users')
-            .select('*');
+            .from("users")
+            .select();
+            console.log('data'  , data);
         if (error) console.error('Error fetching users:', error);
         else setUsers(data || []);
+        console.log('users', users);
     };
 
     const handleAddDriver = async (e:any) => {
