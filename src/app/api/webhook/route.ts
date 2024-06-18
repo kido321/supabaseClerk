@@ -143,7 +143,7 @@ const user:any = await getUser_data(user_id);
 console.log('user', user)
 
 
-  if (user){
+  if (user.length > 0){
     await updateUser(user_id, org_id , role)
   }
 
