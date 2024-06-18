@@ -129,8 +129,7 @@ export async function POST(req: Request) {
 console.log(eventType)
 
 if(eventType === 'organizationMembership.created'){
-  console.log('Organization membership updated')
-  await delay(2000) 
+  await delay(500) 
  
 const org_id = evt.data.organization.id;
 const user_id  = evt.data.public_user_data.user_id;
@@ -138,16 +137,6 @@ const role = evt.data.role;
 const user_object = await clerkClient.users.getUser(user_id);
 const user_email = user_object.emailAddresses[0].emailAddress;
 const user_phone = user_object.phoneNumbers[0] ?  user_object.phoneNumbers[0] : null ;
-console.log(org_id,  user_id, role, user_email, user_phone)
-const user:any = await getUser_data(user_id);
-console.log('user', user)
-
-
-  if (user.length > 0){
-    await updateUser(user_id, org_id , role)
-  }
-
-else{
   await client.from("users").insert({
     first_name: evt.data.public_user_data.first_name? evt.data.public_user_data.first_name : null,
     role: role ? role : null,
@@ -157,17 +146,25 @@ else{
     user_id: user_id ? user_id : null,
     phone_number:  user_phone ? user_phone : null,
   });
-}
+
 
  
 }
+if(eventType === 'organizationMembership.updated'){
+  await delay(500) 
+ 
+const org_id = evt.data.organization.id;
+const user_id  = evt.data.public_user_data.user_id;
+const role = evt.data.role;
+const user:any = await getUser_data(user_id);
 
 
-
-
-
-
-  
+if (user.length > 0){
+  await updateUser(user_id, org_id , role)
+}
+ 
+}
+ 
   console.log(`Webhook with and ID of ${id} and type of ${eventType}`)
   console.log('Webhook body:', body)
 
