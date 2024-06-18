@@ -20,50 +20,6 @@ interface Driver {
   last_name: string | null;
 }
 
-<<<<<<< HEAD
-type User = {
-    user_id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone_number: string;
-    org_id: string;
-    created_at: Date;
-    id :number;
-};
-
-
-const DriversPage: React.FC = () => {
-  const supabase = createClerkSupabaseClient();
-    const [drivers, setDrivers] = useState<Driver[]>([]);
-    const [users, setUsers] = useState<any[]>([]);
-    const [newDriver, setNewDriver] = useState({
-        userId: '',
-        car: '',
-        phoneNumber: ''
-    });
-    useEffect(() => {
-      setTimeout(() => {
-  ;
-  fetchDrivers();
-  fetchUsers();
-          console.log("useEffect");
-        }, 400 ); 
-  
-   
-      
-    }, []);
-  
-  
-  
-
-    const fetchDrivers = async () => {
-        const { data, error } = await supabase
-            .from('drivers')
-            .select('*');
-        if (error) console.error('Error fetching drivers:', error);
-        else setDrivers(data || []);
-=======
 const DriversPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -77,43 +33,32 @@ useEffect(() => {
         setTimeout(() => {
             console.log("useEffect");
           }, 400 ); 
-    
+
       const { data: usersData} = await supabase
         .from('users')
         .select();
-  
+
       const { data: driversData} = await supabase
         .from('Drivers')
         .select();
         console.log("data", driversData);
       //if (usersError) console.log('Error fetching users:', usersError);
        setUsers(usersData || []);
-  
+
      // if (driversError) console.log('Error fetching drivers:', driversError);
        setDrivers(driversData || []);
-  
+
       if (usersData && driversData) {
         const driverUserIds = new Set(driversData.map(driver => driver.user_id));
         const filteredUsers = usersData.filter(user => !driverUserIds.has(user.user_id));
         setAvailableUsers(filteredUsers);
       }
->>>>>>> e9137bccb6509c1e3824a806e28241a1e48cc424
     };
-  
+
     fetchUsersAndDrivers();
   }, []);
-  
 
-<<<<<<< HEAD
-    const fetchUsers = async () => {
-        const { data, error } = await supabase
-            .from("users")
-            .select();
-            console.log('data'  , data);
-        if (error) console.error('Error fetching users:', error);
-        else setUsers(data || []);
-        console.log('users', users);
-=======
+
 
   const handleAssignDriver = async () => {
     if (!selectedUser) return;
@@ -130,11 +75,11 @@ useEffect(() => {
         setTimeout(() => {
             console.log("useEffect");
           }, 400 ); 
-    
+
       const { data: usersData} = await supabase
         .from('users')
         .select();
-  
+
       const { data: driversData} = await supabase
         .from('Drivers')
         .select();
@@ -144,15 +89,14 @@ useEffect(() => {
           console.log(usersData);
      // if (driversError) console.log('Error fetching drivers:', driversError);
        setDrivers(driversData || []);
-  
+
       if (usersData && driversData) {
         const driverUserIds = new Set(driversData.map(driver => driver.user_id));
         const filteredUsers = usersData.filter(user => !driverUserIds.has(user.user_id));
         setAvailableUsers(filteredUsers);
       }
->>>>>>> e9137bccb6509c1e3824a806e28241a1e48cc424
     };
-  
+
     fetchUsersAndDrivers();
 
   };
