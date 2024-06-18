@@ -14,7 +14,7 @@ const getUser_data = async (userId:string) => {
     const { data, error } = await client
       .from('users')
       .select('*')
-      .eq('id', userId)
+      .eq('user_id', userId)
     
     if (error) {
       console.error('Error fetching data:', error)
@@ -29,7 +29,7 @@ const getUser_data = async (userId:string) => {
     const { data, error } = await client
       .from('users')
       .update({ org_id: org_id  , role:role })
-      .eq('id', userId)
+      .eq('user_id', userId)
     
     if (error) {
       console.error('Error updating data:', error)
