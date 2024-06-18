@@ -89,42 +89,82 @@ export async function POST(req: Request) {
   const { id } = evt.data;
   const eventType = evt.type;
 
-  if(eventType === 'user.created'){
-    await delay(2000) 
-//
-    //const Org = await clerkClient.users.getOrganizationMembershipList({ userId: evt.data.id });
-  //  console.log(Org.data[0].organization)
-  await client.from("users").insert({
-    first_name: evt.data.first_name? evt.data.first_name : null,
-   // role: Org ? Org.data[0].role : null,
-    //org_id: Org ? Org.data[0].organization.id : null,
-    last_name: evt.data.last_name? evt.data.last_name : null,
-    email: evt.data.email_addresses?.[0]?.email_address? evt.data.email_addresses[0].email_address : null,
-    user_id: evt.data.id ? evt.data.id : null,
-    phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
-  });
-  }
+//   if(eventType === 'user.created'){
+//     await delay(2000) 
+// //
+//     //const Org = await clerkClient.users.getOrganizationMembershipList({ userId: evt.data.id });
+//   //  console.log(Org.data[0].organization)
+//   await client.from("users").insert({
+//     first_name: evt.data.first_name? evt.data.first_name : null,
+//    // role: Org ? Org.data[0].role : null,
+//     //org_id: Org ? Org.data[0].organization.id : null,
+//     last_name: evt.data.last_name? evt.data.last_name : null,
+//     email: evt.data.email_addresses?.[0]?.email_address? evt.data.email_addresses[0].email_address : null,
+//     user_id: evt.data.id ? evt.data.id : null,
+//     phone_number: evt.data.phone_numbers?.length > 0 ? evt.data.phone_numbers[0].phone_number : null,
+//   });
+//   }
 
 
-if(eventType === 'organizationInvitation.accepted'){
-    console.log('Organization invitation accepted')
-    await delay(2000) 
-    console.log('Delay done')
-    try{
-  const user:any =  getUser(evt.data.id);
+// if(eventType === 'organizationInvitation.accepted'){
+//     console.log('Organization invitation accepted')
+//     await delay(2000) 
+//     console.log('Delay done')
+//     try{
+//   const user:any =  getUser(evt.data.id);
+//   if (user){
+//     const newOrgid = evt.data.organization_id
+//     const newRole = evt.data.role
+//     await updateUser(evt.data.id, newOrgid , newRole)
+//     console.log('User updated')
+//   }
+//   else{
+//     console.log('User not found')
+//   }
+// }catch(e){
+// console.log(e);
+// }
+//   }
+
+
+
+if(eventType === 'organizationMembership.updated'){
+  console.log('Organization membership updated')
+  await delay(2000) 
+ 
+const org_id = evt.data.organization.id;
+const user_id  = evt.data.public_user_data.user_id;
+const role = evt.data.role;
+const user_object = await clerkClient.users.getUser(user_id);
+const user_email = user_object.emailAddresses[0].emailAddress;
+const user_phone = user_object.phoneNumbers[0] ?  user_object.phoneNumbers[0] : null ;
+const user:any =  getUser(user_id);
+console.log(org_id,  user_id, role, user_email, user_phone)
+
   if (user){
-    const newOrgid = evt.data.organization_id
-    const newRole = evt.data.role
-    await updateUser(evt.data.id, newOrgid , newRole)
-    console.log('User updated')
+    await updateUser(user_id, org_id , role)
   }
-  else{
-    console.log('User not found')
-  }
-}catch(e){
-console.log(e);
+
+else{
+  await client.from("users").insert({
+    first_name: evt.data.public_user_data.first_name? evt.data.public_user_data.first_name : null,
+    role: role ? role : null,
+    org_id: org_id ? org_id : null,
+    last_name: evt.data.public_user_data.last_name? evt.data.public_user_data.last_name : null,
+    email: user_email ? user_email : null,
+    user_id: user_id ? user_id : null,
+    phone_number:  user_phone ? user_phone : null,
+  });
 }
-  }
+
+ 
+}
+
+
+
+
+
+
   
   console.log(`Webhook with and ID of ${id} and type of ${eventType}`)
   console.log('Webhook body:', body)
