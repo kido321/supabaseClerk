@@ -128,7 +128,7 @@ export async function POST(req: Request) {
 
 console.log(eventType)
 
-if(eventType === 'organizationMembership.updated'){
+if(eventType === 'organizationMembership.created'){
   console.log('Organization membership updated')
   await delay(2000) 
  
@@ -138,8 +138,9 @@ const role = evt.data.role;
 const user_object = await clerkClient.users.getUser(user_id);
 const user_email = user_object.emailAddresses[0].emailAddress;
 const user_phone = user_object.phoneNumbers[0] ?  user_object.phoneNumbers[0] : null ;
-const user:any =  getUser(user_id);
 console.log(org_id,  user_id, role, user_email, user_phone)
+const user:any =  getUser(user_id);
+
 
   if (user){
     await updateUser(user_id, org_id , role)
