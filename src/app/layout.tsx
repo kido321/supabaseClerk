@@ -8,6 +8,7 @@ import {
   SignedOut,
   UserButton
 } from '@clerk/nextjs'
+import { ThemeProvider } from "@/component/ui/themeprovider"
 import { auth } from "@clerk/nextjs/server";
 import { SyncActiveOrganization } from "./components/SyncActiveOrganization";
 
@@ -28,7 +29,13 @@ export default function RootLayout({
   <ClerkProvider>
     <SyncActiveOrganization membership={sessionClaims?.membership } />
     <html lang="en">
-      <body className={inter.className }>{children}</body>
+    
+      <body className={inter.className }> <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >{children} </ThemeProvider></body>
     </html></ClerkProvider>
   );
 }

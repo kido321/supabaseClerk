@@ -1,5 +1,6 @@
 import React from 'react';
 import Sidebar from '../components/Sidebar';
+import { ThemeProvider } from "@/component/ui/themeprovider"
 import {
   ClerkProvider,
   SignInButton,
@@ -14,6 +15,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="w-screen h-screen flex">
+    
     <Sidebar />
     <div className="bg-gray-800 flex-1 flex flex-col dark">
       <SignedOut>
@@ -24,6 +26,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </SignedIn>
       {children}
     </div>
+   
   </div>
   );
 };

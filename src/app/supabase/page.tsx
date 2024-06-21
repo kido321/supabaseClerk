@@ -145,7 +145,7 @@ export default function Supabase() {
 
 
   return (
-    <Container className="h-screen">
+    <Container className="h-screen dark">
       <div style={{ display: "flex", flexDirection: "column", marginTop: "20px" }}>
         <TextField
           label="Address"
