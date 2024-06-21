@@ -28,7 +28,7 @@ const AddDriver: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-800 min-h-screen text-gray-200">
+    <div className="p-0 bg-gray-800 min-h-screen min-w-screen text-gray-200">
   <h1 className="text-3xl font-bold mb-6 text-center">Invite Driver by Email</h1>
   <div className="flex flex-col items-center mt-4 space-y-4">
     <div className="flex flex-col items-start w-full max-w-lg bg-gray-900 p-6 rounded-lg shadow-lg">

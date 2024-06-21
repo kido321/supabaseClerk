@@ -1,7 +1,92 @@
+//  'use client';
+// // import React, { use, useEffect, useState } from 'react';
+// import { createClerkSupabaseClient ,  createSupabaseClient  } from '../../lib/supabase';
+
+// import { useState, useEffect } from 'react';
+
+// type Driver = {
+//   id: string;
+//   name: string;
+//   role: string;
+// };
+// interface User {
+//   user_id: string;
+//   first_name: string | null;
+//   last_name: string | null;
+//   phone_number: string | null;
+//   email: string | null;
+//   role: string | null;
+//   org_id: string | null;
+// }
+// declare global {
+//   interface Window {
+//     Clerk: any;
+//   }
+// }
+
+
+// const DriversPage: React.FC = () => {
+//   const [drivers, setDrivers] = useState<User[]>([]);
+//   const [loading, setLoading] = useState(true);
+// const supabase = createClerkSupabaseClient();
+
+
+
+// const fetchDrivers = async () => {
+ 
+//   const { data, error } = await supabase
+//     .from('users')
+//     .select('*')
+//     console.log("data", data);
+
+//   if (error) {
+//     console.error('Error fetching drivers:', error);
+//   } else {
+//     setDrivers(data as User[]);
+//   }
+//   setLoading(false);
+// };
+
+//   useEffect(() => {
+//     setTimeout(() => {
+//       ;
+//       fetchDrivers();
+              
+//             }, 400 ); 
+
+//   }, []);
+
+//   if (loading) {
+//     return <div>Loading...</div>;
+//   }
+
+//   return (
+//     <div className="p-6 bg-gray-800 min-h-screen text-gray-200">
+//       <h1 className="text-3xl font-bold mb-6 text-center">Drivers</h1>
+//       <div className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-md mx-auto">
+//         <ul className="divide-y divide-gray-700">
+//           {drivers.map(driver => (
+//             <li key={driver.user_id} className="py-4">
+//               <p className="text-lg font-semibold">{driver.first_name} {driver.last_name}</p>
+//               <p className="text-gray-400">{driver.email}</p>
+//               <p className="text-gray-400">{driver.phone_number}</p>
+//             </li>
+            
+//           ))}
+//         </ul>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default DriversPage;
+
+
 'use client';
-import React, { use, useEffect, useState } from 'react';
-import { createClerkSupabaseClient ,  createSupabaseClient  } from '../../lib/supabase';
-// app/drivers/page.tsx
+import { useState, useEffect } from 'react';
+import { createClerkSupabaseClient } from '../../lib/supabase';
+import EditDriverDialog from '../../components/EditDriverDialog'; // Adjust the import according to your setup
+
 interface User {
   user_id: string;
   first_name: string | null;
@@ -12,141 +97,62 @@ interface User {
   org_id: string | null;
 }
 
-interface Driver {
-  org_id: string;
-  car_id: string | null;
-  user_id: string;
-  first_name: string | null;
-  last_name: string | null;
-}
+const DriversPage: React.FC = () => {
+  const [drivers, setDrivers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClerkSupabaseClient();
 
-const DriversPage = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const [orgId, setOrgId] = useState<string>('');
-  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
-const supabase = createSupabaseClient();
+  const fetchDrivers = async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*');
 
-useEffect(() => {
-    const fetchUsersAndDrivers = async () => {
-        setTimeout(() => {
-            console.log("useEffect");
-          }, 400 ); 
+    if (error) {
+      console.error('Error fetching drivers:', error);
+    } else {
+      setDrivers(data as User[]);
+    }
+    setLoading(false);
+  };
 
-      const { data: usersData} = await supabase
-        .from('users')
-        .select();
+  const handleSave = async (userId: string, firstName: string, lastName: string) => {
+    const { data, error } = await supabase
+      .from('users')
+      .update({ first_name: firstName, last_name: lastName })
+      .eq('user_id', userId);
 
-      const { data: driversData} = await supabase
-        .from('Drivers')
-        .select();
-        console.log("data", driversData);
-      //if (usersError) console.log('Error fetching users:', usersError);
-       setUsers(usersData || []);
+    if (error) {
+      console.error('Error updating driver:', error);
+    } else {
+      setDrivers(drivers.map(driver =>
+        driver.user_id === userId ? { ...driver, first_name: firstName, last_name: lastName } : driver
+      ));
+    }
+  };
 
-     // if (driversError) console.log('Error fetching drivers:', driversError);
-       setDrivers(driversData || []);
-
-      if (usersData && driversData) {
-        const driverUserIds = new Set(driversData.map(driver => driver.user_id));
-        const filteredUsers = usersData.filter(user => !driverUserIds.has(user.user_id));
-        setAvailableUsers(filteredUsers);
-      }
-    };
-
-    fetchUsersAndDrivers();
+  useEffect(() => {
+    setTimeout(() => {
+      fetchDrivers();
+    }, 400);
   }, []);
 
-
-
-  const handleAssignDriver = async () => {
-    if (!selectedUser) return;
-
-    const { data, error } = await supabase
-      .from('Drivers')
-      .insert([{ user_id: selectedUser, org_id: orgId }]);
-
-    if (error) console.log('Error assigning driver:', error);
-    if(data){
-    setDrivers([...drivers, data[0]]);}
-    setSelectedUser(null);
-    const fetchUsersAndDrivers = async () => {
-        setTimeout(() => {
-            console.log("useEffect");
-          }, 400 ); 
-
-      const { data: usersData} = await supabase
-        .from('users')
-        .select();
-
-      const { data: driversData} = await supabase
-        .from('Drivers')
-        .select();
-          console.log("data", driversData);
-      //if (usersError) console.log('Error fetching users:', usersError);
-       setUsers(usersData || []);
-          console.log(usersData);
-     // if (driversError) console.log('Error fetching drivers:', driversError);
-       setDrivers(driversData || []);
-
-      if (usersData && driversData) {
-        const driverUserIds = new Set(driversData.map(driver => driver.user_id));
-        const filteredUsers = usersData.filter(user => !driverUserIds.has(user.user_id));
-        setAvailableUsers(filteredUsers);
-      }
-    };
-
-    fetchUsersAndDrivers();
-
-  };
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen bg-gray-900 text-gray-200">Loading...</div>;
+  }
 
   return (
     <div className="p-6 bg-gray-800 min-h-screen text-gray-200">
-      <h1 className="text-3xl font-bold mb-6 text-center">Manage Drivers</h1>
-
-      <div className="bg-gray-900 p-6 rounded-lg shadow-lg mb-6 max-w-md mx-auto">
-        <h2 className="text-2xl font-semibold mb-4">Assign User as Driver</h2>
-        <label className="block mb-4">
-          <span className="text-gray-400">Select User:</span>
-          <select
-            className="mt-1 block w-full px-3 py-2 border border-gray-600 bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            value={selectedUser || ''}
-            onChange={(e) => setSelectedUser(e.target.value)}
-          >
-            <option value="">Select a user</option>
-            {availableUsers.map((user) => (
-              <option key={user.user_id} value={user.user_id}>
-                {user.first_name} {user.last_name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="block mb-4">
-          <span className="text-gray-400">Org ID:</span>
-          <input
-            type="text"
-            className="mt-1 block w-full px-3 py-2 border border-gray-600 bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            value={orgId}
-            onChange={(e) => setOrgId(e.target.value)}
-          />
-        </label>
-
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full"
-          onClick={handleAssignDriver}
-        >
-          Assign as Driver
-        </button>
-      </div>
-
+      <h1 className="text-3xl font-bold mb-6 text-center">Drivers</h1>
       <div className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-md mx-auto">
-        <h2 className="text-2xl font-semibold mb-4">List of Drivers</h2>
-        <ul className="list-disc list-inside">
-          {drivers.map((driver) => (
-            <li key={driver.user_id} className="text-gray-400">
-              {driver.first_name} {driver.last_name}
+        <ul className="divide-y divide-gray-700">
+          {drivers.map(driver => (
+            <li key={driver.user_id} className="py-4 flex justify-between items-center">
+              <div>
+                <p className="text-lg font-semibold">{driver.first_name} {driver.last_name}</p>
+                <p className="text-gray-400">{driver.email}</p>
+                <p className="text-gray-400">{driver.phone_number}</p>
+              </div>
+              <EditDriverDialog driver={driver} onSave={handleSave} />
             </li>
           ))}
         </ul>

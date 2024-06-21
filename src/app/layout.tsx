@@ -28,12 +28,7 @@ export default function RootLayout({
   <ClerkProvider>
     <SyncActiveOrganization membership={sessionClaims?.membership } />
     <html lang="en">
-      <body className={inter.className}><SignedOut>
-          <SignInButton />
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>{children}</body>
+      <body className={inter.className }>{children}</body>
     </html></ClerkProvider>
   );
 }

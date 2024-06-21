@@ -22,9 +22,9 @@ const Sidebar: React.FC = () => {
         perplexity
       </h2>
       <SidebarItem name="Home" href="/" isCollapsed={isCollapsed} />
-      <SidebarItem name="Add Driver" href="admin/adddriver" isCollapsed={isCollapsed} />
-      <SidebarItem name="Library" href="/library" isCollapsed={isCollapsed} />
-      <SidebarButton text="Sign Up" isCollapsed={isCollapsed} />
+      <SidebarItem name="Invite Driver" href="admin/adddriver" isCollapsed={isCollapsed} />
+      <SidebarItem name="Drivers" href="admin/drivers" isCollapsed={isCollapsed} />
+      <SidebarButton text="Task" isCollapsed={isCollapsed} />
     </div>
   );
 };
