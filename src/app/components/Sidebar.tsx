@@ -11,7 +11,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className={`sidebar ${isCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}>
+    <div className={`sidebar ${isCollapsed ? 'sidebar-collapsed min-h-screen' : 'sidebar-expanded min-h-screen'}`}>
       <button
         onClick={toggleSidebar}
         className="sidebar-toggle"

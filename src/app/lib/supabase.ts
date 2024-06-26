@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { getAuth } from '@clerk/nextjs/server';
 
 function createClerkSupabaseClient() {
 
@@ -27,6 +28,7 @@ function createClerkSupabaseClient() {
     );
 
 }
+
 
 function createSupabaseClient() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_KEY!)

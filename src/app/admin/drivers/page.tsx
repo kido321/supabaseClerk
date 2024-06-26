@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
+// import { useTheme } from "next-themes"
 
 import { Button } from "@/component/ui/button"
 import {
@@ -29,7 +29,7 @@ const DriversPage: React.FC = () => {
   const [drivers, setDrivers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClerkSupabaseClient();
-  const { setTheme } = useTheme()
+  // const { setTheme } = useTheme()
   const fetchDrivers = async () => {
     const { data, error } = await supabase
       .from('users')
@@ -85,7 +85,7 @@ const DriversPage: React.FC = () => {
           ))}
         </ul>
       </div>
-      <DropdownMenu>
+      {/* <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
           <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -104,7 +104,7 @@ const DriversPage: React.FC = () => {
           System
         </DropdownMenuItem>
       </DropdownMenuContent>
-    </DropdownMenu>
+    </DropdownMenu> */}
     </div>
   );
 };
