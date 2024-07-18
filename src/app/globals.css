@@ -88,23 +88,23 @@ html, body {
   @apply flex min-h-screen p-0 m-0;
 }
 
-.sidebar {
+/* .sidebar {
   @apply flex flex-col  bg-gray-900 text-white p-5 transition-all duration-300;
-}
+} */
 
-.sidebar-collapsed {
+/* .sidebar-collapsed {
   @apply w-20;
-}
-
+} */
+/* 
 .sidebar-expanded {
   @apply w-64;
-}
-
+} */
+/* 
 .sidebar-toggle {
   @apply mb-5 p-2 bg-blue-500 hover:bg-blue-700 rounded text-white;
-}
+} */
 
-.sidebar-header {
+/* .sidebar-header {
   @apply text-2xl mb-5 transition-opacity duration-300;
 }
 
@@ -126,8 +126,8 @@ html, body {
 
 .sidebar-item-visible {
   @apply opacity-100;
-}
+} */
 
-.sidebar-button {
+/* .sidebar-button {
   @apply mt-auto py-2 px-4 bg-blue-500 hover:bg-blue-700 rounded text-white;
-}
+} */

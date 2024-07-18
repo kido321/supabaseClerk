@@ -14,17 +14,20 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="w-screen flex">
+    <div className="w-screen flex h-screen">
     
     <Sidebar />
-    <div className="bg-gray-800  flex-1 flex flex-col dark">
+    <div className=" flex-1 flex flex-col overflow-y-auto">
+      
+      {children}
+      <div className='fixed top-5 right-8 text-white"'>
       <SignedOut>
         <SignInButton />
       </SignedOut>
       <SignedIn>
         <UserButton />
       </SignedIn>
-      {children}
+      </div>
     </div>
    
   </div>
