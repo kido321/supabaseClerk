@@ -14,6 +14,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
+    <div>
     <div className="w-screen flex h-screen">
     
     <Sidebar />
@@ -30,6 +31,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </div>
     </div>
    
+  </div>
   </div>
   );
 };
