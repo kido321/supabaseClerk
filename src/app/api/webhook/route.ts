@@ -29,7 +29,7 @@ const getUser_data = async (userId:string) => {
     const { data, error } = await client
       .from('users')
       .update({ org_id:org_id  , role:role })
-      .eq('user_id', userId)
+      .eq('clerk_user_id', userId)
     
     if (error) {
       console.error('Error updating data:', error)
@@ -132,9 +132,9 @@ if(eventType === 'organizationMembership.created'){
   await delay(500) 
  
 const org_id = evt.data.organization.id;
-const user_id  = evt.data.public_user_data.user_id;
+const clerk_user_id  = evt.data.public_user_data.user_id;
 const role = evt.data.role;
-const user_object = await clerkClient.users.getUser(user_id);
+const user_object = await clerkClient.users.getUser(clerk_user_id);
 const user_email = user_object.emailAddresses[0].emailAddress;
 const user_phone = user_object.phoneNumbers[0] ?  user_object.phoneNumbers[0] : null ;
   await client.from("users").insert({
@@ -143,7 +143,7 @@ const user_phone = user_object.phoneNumbers[0] ?  user_object.phoneNumbers[0] : 
     org_id: org_id ? org_id : null,
     last_name: evt.data.public_user_data.last_name? evt.data.public_user_data.last_name : null,
     email: user_email ? user_email : null,
-    user_id: user_id ? user_id : null,
+    clerk_user_id: clerk_user_id ? clerk_user_id : null,
     phone_number:  user_phone ? user_phone : null,
   });
 

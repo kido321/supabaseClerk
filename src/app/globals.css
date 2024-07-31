@@ -84,9 +84,9 @@ html, body {
   padding: 0;
 }
 
-.container {
+/* .container {
   @apply flex min-h-screen p-0 m-0;
-}
+} */
 
 /* .sidebar {
   @apply flex flex-col  bg-gray-900 text-white p-5 transition-all duration-300;

@@ -3,121 +3,134 @@
 import { useOrganization } from '@clerk/nextjs';
 import { OrganizationCustomRoleKey } from '@clerk/types';
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { UserPlus, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const OrgMembersParams = {
-  memberships: {
-    pageSize: 5,
-    keepPreviousData: true,
-  },
+  memberships: { pageSize: 5, keepPreviousData: true },
 };
 
 export const OrgInvitationsParams = {
-  invitations: {
-    pageSize: 5,
-    keepPreviousData: true,
-  },
+  invitations: { pageSize: 5, keepPreviousData: true },
 };
 
-// Form to invite a new member to the organization.
 export const InviteMember = () => {
   const { isLoaded, organization, invitations } = useOrganization(OrgInvitationsParams)
   const [emailAddress, setEmailAddress] = useState("")
-  const [disabled, setDisabled] = useState(false)
+  const [role, setRole] = useState<OrganizationCustomRoleKey | "">("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [message, setMessage] = useState("")
 
   if (!isLoaded || !organization) {
-    return <>Loading</>
+    return <div className="flex justify-center items-center h-32">Loading...</div>
   }
 
-  const onSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (!emailAddress || !role) return
 
-    const submittedData = Object.fromEntries(
-      new FormData(e.currentTarget).entries()
-    ) as {
-      email: string | undefined
-      role: OrganizationCustomRoleKey | undefined
+    setIsSubmitting(true)
+    try {
+      await organization.inviteMember({ emailAddress, role })
+      await invitations?.revalidate?.()
+      setEmailAddress("")
+      setRole("")
+      setMessage("Invitation sent successfully!")
+    } catch (error) {
+      setMessage("Failed to send invitation. Please try again.")
+    } finally {
+      setIsSubmitting(false)
     }
-
-    if (!submittedData.email || !submittedData.role) {
-      return
-    }
-
-    setDisabled(true)
-    await organization.inviteMember({
-      emailAddress: submittedData.email,
-      role: submittedData.role,
-    })
-    await invitations?.revalidate?.()
-    setEmailAddress("")
-    setDisabled(false)
   }
 
   return (
-    <form onSubmit={onSubmit}>
-      <input
-        name="email"
-        type="text"
-        placeholder="Email address"
-        value={emailAddress}
-        onChange={(e) => setEmailAddress(e.target.value)}
-      />
-      <label>Role</label>
-      <SelectRole fieldName={"role"} />
-      <button type="submit" disabled={disabled}>
-        Invite
-      </button>
-    </form>
+    <Card>
+      <CardHeader>
+        <CardTitle>Invite New Member</CardTitle>
+        <CardDescription>Send an invitation to join your organization</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="member@example.com"
+              value={emailAddress}
+              onChange={(e) => setEmailAddress(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="role">Role</Label>
+            <SelectRole
+              value={role}
+              onChange={(value) => setRole(value as OrganizationCustomRoleKey)}
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Sending..." : (
+              <>
+                <UserPlus className="mr-2 h-4 w-4" /> Invite Member
+              </>
+            )}
+          </Button>
+        </form>
+        {message && (
+          <Alert className={`mt-4 ${message.includes('successfully') ? 'bg-green-100' : 'bg-red-100'}`}>
+            <AlertDescription>{message}</AlertDescription>
+          </Alert>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 
 type SelectRoleProps = {
-  fieldName?: string
-  isDisabled?: boolean
-  onChange?: ChangeEventHandler<HTMLSelectElement>
-  defaultRole?: string
+  value: string;
+  onChange: (value: string) => void;
+  isDisabled?: boolean;
 }
 
-const SelectRole = (props: SelectRoleProps) => {
-  const { fieldName, isDisabled = false, onChange, defaultRole } = props
+const SelectRole = ({ value, onChange, isDisabled = false }: SelectRoleProps) => {
   const { organization } = useOrganization()
   const [fetchedRoles, setRoles] = useState<OrganizationCustomRoleKey[]>([])
   const isPopulated = useRef(false)
 
   useEffect(() => {
     if (isPopulated.current) return
-    organization
-      ?.getRoles({
-        pageSize: 20,
-        initialPage: 1,
-      })
+    organization?.getRoles({ pageSize: 20, initialPage: 1 })
       .then((res) => {
         isPopulated.current = true
-        setRoles(
-          res.data.map((roles) => roles.key as OrganizationCustomRoleKey)
-        )
+        setRoles(res.data.map((role) => role.key as OrganizationCustomRoleKey))
       })
   }, [organization?.id])
 
   if (fetchedRoles.length === 0) return null
 
   return (
-    <select
-      name={fieldName}
-      disabled={isDisabled}
-      aria-disabled={isDisabled}
-      onChange={onChange}
-      defaultValue={defaultRole}
-    >
-      {fetchedRoles?.map((roleKey) => (
-        <option key={roleKey} value={roleKey}>
-          {roleKey}
-        </option>
-      ))}
-    </select>
+    <Select value={value} onValueChange={onChange} disabled={isDisabled}>
+      <SelectTrigger>
+        <SelectValue placeholder="Select a role" />
+      </SelectTrigger>
+      <SelectContent>
+        {fetchedRoles.map((roleKey) => (
+          <SelectItem key={roleKey} value={roleKey}>
+            {roleKey}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }
 
-// List of pending invitations to an organization.
 export const InvitationList = () => {
   const { isLoaded, invitations, memberships } = useOrganization({
     ...OrgInvitationsParams,
@@ -125,63 +138,80 @@ export const InvitationList = () => {
   });
 
   if (!isLoaded) {
-    return <>Loading</>;
+    return <div className="flex justify-center items-center h-32">Loading...</div>;
   }
 
   return (
-    <>
-    <table className="min-w-full bg-white">
-      <thead>
-        <tr>
-          <th className="py-2 px-4 border-b border-gray-200">User</th>
-          <th className="py-2 px-4 border-b border-gray-200">Invited</th>
-          <th className="py-2 px-4 border-b border-gray-200">Role</th>
-          <th className="py-2 px-4 border-b border-gray-200">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {invitations?.data?.map((inv) => (
-          <tr key={inv.id} className="hover:bg-gray-100">
-            <td className="py-2 px-4 border-b border-gray-200">{inv.emailAddress}</td>
-            <td className="py-2 px-4 border-b border-gray-200">{inv.createdAt.toLocaleDateString()}</td>
-            <td className="py-2 px-4 border-b border-gray-200">{inv.role}</td>
-            <td className="py-2 px-4 border-b border-gray-200">
-              <button
-                className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-700"
-                onClick={async () => {
-                  await inv.revoke();
-                  await Promise.all([
-                    memberships?.revalidate,
-                    invitations?.revalidate,
-                  ]);
-                }}
-              >
-                Revoke
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  
-    <div className="mt-4 flex justify-between">
-      <button
-        className="bg-blue-500 text-white py-1 px-4 rounded disabled:opacity-50"
-        disabled={!invitations?.hasPreviousPage || invitations?.isFetching}
-        onClick={() => invitations?.fetchPrevious?.()}
-      >
-        Previous
-      </button>
-  
-      <button
-        className="bg-blue-500 text-white py-1 px-4 rounded disabled:opacity-50"
-        disabled={!invitations?.hasNextPage || invitations?.isFetching}
-        onClick={() => invitations?.fetchNext?.()}
-      >
-        Next
-      </button>
-    </div>
-  </>
-  
+    <Card>
+      <CardHeader>
+        <CardTitle>Pending Invitations</CardTitle>
+        <CardDescription>Manage invitations to your organization</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>User</TableHead>
+              <TableHead>Invited</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {invitations?.data?.map((inv) => (
+              <TableRow key={inv.id}>
+                <TableCell>{inv.emailAddress}</TableCell>
+                <TableCell>{inv.createdAt.toLocaleDateString()}</TableCell>
+                <TableCell>{inv.role}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={async () => {
+                      await inv.revoke();
+                      await Promise.all([
+                        memberships?.revalidate,
+                        invitations?.revalidate,
+                      ]);
+                    }}
+                  >
+                    Revoke
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        <div className="mt-4 flex justify-between">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!invitations?.hasPreviousPage || invitations?.isFetching}
+            onClick={() => invitations?.fetchPrevious?.()}
+          >
+            <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!invitations?.hasNextPage || invitations?.isFetching}
+            onClick={() => invitations?.fetchNext?.()}
+          >
+            Next <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
+
+export default function OrganizationMembersManagement() {
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      <InviteMember />
+      <InvitationList />
+    </div>
+  );
+}

@@ -1,5 +1,5 @@
-'use client';
-import { useEffect } from 'react';
+"use client"
+import { useEffect, useState } from 'react';
 
 declare global {
   interface Window {
@@ -8,15 +8,21 @@ declare global {
 }
 
 const GoogleMapsScript = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
   useEffect(() => {
+    if (window.google && window.google.maps) {
+      setIsLoaded(true);
+      return;
+    }
+
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`;
     script.async = true;
     script.defer = true;
 
     window.initMap = () => {
-      // This function will be called when the Google Maps API is loaded
-      // You can leave it empty if you don't need to do anything specific on load
+      setIsLoaded(true);
     };
 
     document.head.appendChild(script);

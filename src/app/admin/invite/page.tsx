@@ -1,5 +1,5 @@
 "use client";
-import {InvitationList} from "../components/InvitationList";
+import {InvitationList} from "../../components/InvitationList";
 
 export default function Invite() {
  

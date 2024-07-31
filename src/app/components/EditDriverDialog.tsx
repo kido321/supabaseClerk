@@ -46,7 +46,7 @@ const EditDriverDialog: React.FC<EditDriverDialogProps> = ({ driver, onSave }) =
         <DialogHeader>
           <DialogTitle>Edit Driver</DialogTitle>
           <DialogDescription>
-            Make changes to the driver's information here. Click save when you're done.
+            Make changes to the driver&aposs information here. Click save when you&aposre done.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

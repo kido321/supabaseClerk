@@ -1,16 +1,24 @@
 'use client'
-import React, { useState } from 'react';
 
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Send } from "lucide-react";
 
 const AddDriver: React.FC = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
   };
 
   const handleInvite = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch('/api/invitedriver', {
         method: 'POST',
@@ -24,42 +32,53 @@ const AddDriver: React.FC = () => {
       setMessage(data.message);
     } catch (error) {
       setMessage('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="p-0 bg-gray-800 min-h-screen min-w-screen text-gray-200">
-  <h1 className="text-3xl font-bold mb-6 text-center">Invite Driver by Email</h1>
-  <div className="flex flex-col items-center mt-4 space-y-4">
-    <div className="flex flex-col items-start w-full max-w-lg bg-gray-900 p-6 rounded-lg shadow-lg">
-      <label htmlFor="email" className="block text-lg font-medium text-gray-400 mb-2">
-        Invite Driver by Email
-      </label>
-      <div className="flex w-full">
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={handleEmailChange}
-          className="flex-grow px-3 py-2 border border-gray-600 bg-gray-800 rounded-l-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          placeholder="Enter email"
-        />
-        <button
-          onClick={handleInvite}
-          className="px-4 py-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-        >
-          Send Invitation
-        </button>
-      </div>
+    <div className="container mx-auto p-6 flex  items-center">
+      <Card className="max-w-md mx-auto min-h-80 min-w-96 ">
+        <CardHeader>
+          <CardTitle>Invite Driver</CardTitle>
+          <CardDescription>Send an invitation email to a new driver</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={(e) => { e.preventDefault(); handleInvite(); }}>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  type="email"
+                  id="email"
+                  placeholder="user@example.com"
+                  value={email}
+                  onChange={handleEmailChange}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  "Sending..."
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" /> Send Invitation
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+          {message && (
+            <Alert className={`mt-4 ${message.includes('successfully') ? 'bg-green-100' : 'bg-red-100'}`}>
+              <AlertDescription>
+                {message}
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
     </div>
-    {message && (
-      <p className={`text-center text-sm ${message === 'Invitation sent successfully!' ? 'text-green-600' : 'text-red-600'}`}>
-        {message}
-      </p>
-    )}
-  </div>
-</div>
-
   );
 };
 

@@ -22,12 +22,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       {children}
       <div className='fixed top-5 right-8 text-white"'>
+        <div>
       <SignedOut>
         <SignInButton />
       </SignedOut>
       <SignedIn>
         <UserButton />
       </SignedIn>
+      </div>
       </div>
     </div>
    

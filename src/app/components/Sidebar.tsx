@@ -31,17 +31,29 @@
 
 // export default Sidebar;
 
-
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter  ,usePathname} from 'next/navigation';
-import { Users, Ambulance, Calendar, ClipboardList, BarChart2, UserCircle, Settings } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Users, Ambulance, Calendar, ClipboardList, BarChart2, UserCircle, Settings, Menu } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 const Sidebar = () => {
-  const router = useRouter();
   const pathname = usePathname();
-console.log(router)
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 1008); // Adjust breakpoint as needed
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart2, href: '/admin/dashboard' },
     { id: 'trips', label: 'Trips', icon: Ambulance, href: '/admin/trips' },
@@ -53,27 +65,50 @@ console.log(router)
     { id: 'settings', label: 'Settings', icon: Settings, href: '/admin/settings' },
   ];
 
-  return (
-    <div className="w-64 bg-white shadow-md h-screen">
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
       <div className="p-4">
-        <h1 className="text-2xl font-bold text-gray-800">NEMT Admin</h1>
+        <h1 className="text-2xl font-bold text-blue-700 text-center">ADMIN</h1>
       </div>
-      <nav className="mt-4">
+      <nav className="mt-4 flex-grow">
         {navItems.map((item) => (
-          <Link href={item.href} key={item.id}  legacyBehavior>
-            <a
-              className={`flex items-center w-full px-4 py-2 text-left ${
+          <Link href={item.href} key={item.id} passHref>
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start px-4 py-6 text-left text-base",
                 pathname === item.href
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            ><item.icon className="mr-2 h-5 w-5" />
+                  ? "bg-blue-500 text-white hover:bg-blue-600"
+                  : "text-gray-600 hover:bg-gray-100"
+              )}
+            >
+              <item.icon className="mr-2 h-5 w-5" />
               {item.label}
-              
-            </a>
+            </Button>
           </Link>
         ))}
       </nav>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" className="md:hidden fixed top-4 left-4 z-50">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-64 p-0">
+          <SidebarContent />
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <div className="hidden md:block w-64 bg-white shadow-md h-screen">
+      <SidebarContent />
     </div>
   );
 };
